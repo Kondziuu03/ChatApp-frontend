@@ -19,8 +19,18 @@ code {
   border-radius: 4px;
   padding: 10px;
   margin-bottom: 15px;
-  text-align: center;
+  text-align: left;
   font-size: 14px;
+  white-space: pre-line;
+}
+
+.error-message ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.error-message li {
+  margin: 5px 0;
 }
 
 header {
