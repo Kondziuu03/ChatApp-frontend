@@ -43,7 +43,7 @@ export const loginUser = async (username, password) => {
 
 export const initializeChat = async (chatName, token, pageNumber = 1, pageSize = 20) => {
   try {
-    const response = await axios.post(`${API_URL}/Chat/GetPaginatedChat`, null, {
+    const response = await axios.get(`${API_URL}/Chat/GetPaginatedChat`, {
       params: {
         chatName,
         pageNumber,
@@ -65,7 +65,7 @@ export const initializeChat = async (chatName, token, pageNumber = 1, pageSize =
 
 export const paraphraseMessage = async (message, token, style = 'standard') => {
   try {
-    const response = await axios.post(`${API_URL}/Chat/ParaphraseMessage`, null, {
+    const response = await axios.get(`${API_URL}/Chat/ParaphraseMessage`, {
       params: {
         message: message,
         style: style
@@ -86,7 +86,7 @@ export const paraphraseMessage = async (message, token, style = 'standard') => {
 
 export const checkGrammar = async (message, token) => {
   try {
-    const response = await axios.post(`${API_URL}/Chat/CheckGrammar`, null, {
+    const response = await axios.get(`${API_URL}/Chat/CheckGrammar`, {
       params: {
         message: message
       },
@@ -100,6 +100,31 @@ export const checkGrammar = async (message, token) => {
     return { 
       success: false, 
       error: formatErrors(error.response?.data)
+    };
+  }
+};
+
+export const uploadPdfFile = async (file, token) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/File/Upload`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    return {
+      success: false,
+      error: error.response?.data?.message || 'File upload failed',
     };
   }
 };

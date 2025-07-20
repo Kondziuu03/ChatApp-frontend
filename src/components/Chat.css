@@ -246,11 +246,11 @@
 }
 
 .input-container .grammar-check-button {
-  background-color: #4caf50;
+  background-color: #00796b;
 }
 
 .input-container .grammar-check-button:hover:not(:disabled) {
-  background-color: #388e3c;
+  background-color: #004d40;
 }
 
 .error-message {
@@ -267,6 +267,56 @@
 
 small {
   color: #888;
+}
+
+.upload-section {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.upload-button {
+  background-color: #673ab7;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.upload-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.success-message {
+  color: #388e3c;
+  margin-left: 8px;
+  font-size: 14px;
+}
+
+.notification-top-right {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background: #323232;
+  color: #fff;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 1000;
+  font-size: 16px;
+  animation: fadeInOut 3s;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
 }
 
 

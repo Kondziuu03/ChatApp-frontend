@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { initializeChat, paraphraseMessage, checkGrammar } from '../services/api';
+import { initializeChat, paraphraseMessage, checkGrammar, uploadPdfFile } from '../services/api';
 import './Chat.css';
 
 const Chat = ({ token, connection, username }) => {
@@ -19,6 +19,10 @@ const Chat = ({ token, connection, username }) => {
   const PAGE_SIZE = 20;
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(false);
   const [isCheckingGrammar, setIsCheckingGrammar] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [uploadSuccess, setUploadSuccess] = useState('');
+  const [notification, setNotification] = useState('');
 
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
@@ -43,6 +47,12 @@ const Chat = ({ token, connection, username }) => {
         // If we get fewer messages than PAGE_SIZE or no messages, there are no more to load
         setHasMore(messages.length === PAGE_SIZE);
 
+        // Set chat ID and name regardless of message count
+        if (page === 1) {
+          setChatId(id);
+          setChatName(name);
+        }
+
         if (messages.length === 0) {
           return;
         }
@@ -60,11 +70,6 @@ const Chat = ({ token, connection, username }) => {
           const uniqueNewMessages = newMessages.filter(msg => !existingIds.has(msg.id));
           return [...uniqueNewMessages, ...prevMessages];
         });
-
-        if (page === 1) {
-          setChatId(id);
-          setChatName(name);
-        }
       } else {
         setError(result.error || 'Failed to load messages');
       }
@@ -184,8 +189,26 @@ const Chat = ({ token, connection, username }) => {
     }
   };
 
+  const handleUpload = async (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setIsUploading(true);
+      setUploadError('');
+      setUploadSuccess('');
+      const result = await uploadPdfFile(e.target.files[0], token);
+      setIsUploading(false);
+      if (result.success) {
+        setNotification(result.data.message || 'File uploaded successfully!');
+        setTimeout(() => setNotification(''), 3000);
+      } else {
+        setUploadError(result.error);
+      }
+      e.target.value = '';
+    }
+  };
+
   return (
     <div className="chat-container">
+      {notification && <div className="notification-top-right">{notification}</div>}
       <div className="chat-box">
         <h2>Chat - {chatName}</h2>
         <div className="messages">
@@ -239,7 +262,6 @@ const Chat = ({ token, connection, username }) => {
               </select>
               <button 
                 onClick={handleParaphrase} 
-                disabled={isParaphrasing || !newMessage.trim()}
                 className="paraphrase-button"
               >
                 {isParaphrasing ? 'Paraphrasing...' : 'Paraphrase'}
@@ -247,15 +269,31 @@ const Chat = ({ token, connection, username }) => {
             </div>
             <button 
               onClick={handleCheckGrammar}
-              disabled={isCheckingGrammar || !newMessage.trim()}
               className="grammar-check-button"
             >
               {isCheckingGrammar ? 'Checking...' : 'Check Grammar'}
             </button>
+            <div className="upload-section">
+              <input
+                type="file"
+                accept="application/pdf"
+                id="pdf-upload"
+                style={{ display: 'none' }}
+                onChange={handleUpload}
+                disabled={isUploading}
+              />
+              <button
+                onClick={() => document.getElementById('pdf-upload').click()}
+                disabled={isUploading}
+                className="upload-button"
+              >
+                {isUploading ? 'Uploading...' : 'Select & Upload PDF'}
+              </button>
+              {uploadError && <div className="error-message">{uploadError}</div>}
+            </div>
           </div>
           <button 
             onClick={handleSendMessage}
-            disabled={!newMessage.trim()}
           >
             Send
           </button>
